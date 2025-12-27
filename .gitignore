@@ -1,0 +1,12 @@
+# Executables
+grocerx
+*.out
+
+# Backup
+GrocerX_backup/
+
+# OS files
+.DS_Store
+
+# Editor settings
+.vscode/
