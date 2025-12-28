@@ -12,8 +12,6 @@
     <span>🍌</span><span>🍅</span><span>🥬</span><span>🧀</span><span>🍉</span>
     <span>🍎</span><span>🥕</span><span>🥦</span><span>🍞</span><span>🥛</span>
     <span>🍌</span><span>🍅</span><span>🥬</span><span>🧀</span><span>🍉</span>
-    <span>🍎</span><span>🥕</span><span>🥦</span><span>🍞</span><span>🥛</span>
-    <span>🍌</span><span>🍅</span><span>🥬</span><span>🧀</span><span>🍉</span>
 </div>
 
 <div class="app">
@@ -38,11 +36,16 @@
         </div>
 
         <input type="date" id="expiryDate">
-
         <button onclick="addItem()">Add Item</button>
     </div>
 
-    <!-- Expiry Alerts -->
+    <!-- ✅ ADDED ITEMS FIRST -->
+    <div class="card">
+        <h2>Added Items</h2>
+        <ul id="itemList"></ul>
+    </div>
+
+    <!-- ✅ EXPIRY ALERTS -->
     <div class="card alert-card">
         <h2>Expiry Alerts</h2>
         <ul id="expiryAlert">
@@ -50,7 +53,7 @@
         </ul>
     </div>
 
-    <!-- Shopping List -->
+    <!-- ✅ SHOPPING LIST -->
     <div class="card">
         <h2>Shopping List</h2>
         <ul id="shoppingList">
@@ -58,16 +61,19 @@
         </ul>
     </div>
 
-    <!-- Added Items -->
-    <div class="card">
-        <h2>Added Items</h2>
-        <ul id="itemList"></ul>
-    </div>
-
 </div>
 
 <script>
     let items = [];
+
+    /* ✅ DATE FORMAT: 04 Feb 2025 (Wed) */
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear();
+        const weekday = date.toLocaleString('en-US', { weekday: 'short' });
+        return `${day} ${month} ${year} (${weekday})`;
+    }
 
     function addItem() {
         const name = document.getElementById("itemName").value.trim();
@@ -80,12 +86,9 @@
             return;
         }
 
-        if (unit === "items" && !expiryValue) {
-            alert("Expiry date required for packaged items");
-            return;
-        }
-
         let expiryDate;
+
+        // Vegetables → estimated expiry
         if (unit === "kg" && !expiryValue) {
             expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 7);
@@ -102,14 +105,30 @@
     }
 
     function updateAll() {
+        updateItems();
         updateExpiryAlerts();
         updateShoppingList();
-        updateItems();
+    }
+
+    function updateItems() {
+        const ul = document.getElementById("itemList");
+        ul.innerHTML = "";
+
+        items.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <strong>${item.name}</strong>
+                <span>Quantity: ${item.quantity} ${item.unit}</span>
+                <span>Expiry: ${formatDate(item.expiryDate)}</span>
+            `;
+            ul.appendChild(li);
+        });
     }
 
     function updateExpiryAlerts() {
         const ul = document.getElementById("expiryAlert");
         ul.innerHTML = "";
+
         const today = new Date();
         let found = false;
 
@@ -131,6 +150,7 @@
     function updateShoppingList() {
         const ul = document.getElementById("shoppingList");
         ul.innerHTML = "";
+
         const today = new Date();
         let found = false;
 
@@ -149,22 +169,7 @@
         }
     }
 
-    function updateItems() {
-        const ul = document.getElementById("itemList");
-        ul.innerHTML = "";
-
-        items.forEach(item => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <strong>${item.name}</strong>
-                <span>Qty: ${item.quantity} ${item.unit}</span>
-                <span>Expiry: ${item.expiryDate.toDateString()}</span>
-            `;
-            ul.appendChild(li);
-        });
-    }
-
-    // Demo auto-update (10 seconds = 1 demo day)
+    /* ⏱ Demo auto update */
     setInterval(updateAll, 10000);
 </script>
 
